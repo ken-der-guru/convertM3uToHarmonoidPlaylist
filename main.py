@@ -42,6 +42,7 @@ while m3u_path.is_file() is False:
 #                              }],
 #                          }]
 
+
 # m3u specification:
 # https://en.wikipedia.org/wiki/M3U
 
@@ -58,7 +59,7 @@ with open(m3u_path) as f:
         if '/' in line:  # '/' indicates that the line is a Path to a song
             path = pathlib.Path(line)
 
-            audiofile = eyed3.load(path.absolute())  # ope the file with eyed3 to read its metadata
+            audiofile = eyed3.load(path.absolute())  # open the file with eyed3 to read its metadata
 
             try:
                 artists = [audiofile.tag.artist]
@@ -103,7 +104,7 @@ if answer == 'no' or answer == 'n':
     while harmonoidPlaylist_path.is_file() is False:
         harmonoidPlaylist_path = pathlib.Path(input('enter valid Path to your Harmonoid Playlists.JSON file:\n'))
 
-
+# determine the count of playlists to insert the .m3u playlist at the end
 with open(harmonoidPlaylist_path) as f:
     data = json.load(f)
     r = -2
@@ -116,11 +117,12 @@ with open(harmonoidPlaylist_path) as f:
     playlistDictHarmonoid = {'name': m3u_path.name[0:m3u_path.name.rfind('.m3u')],
                              'id': r+1,
                              'tracks': tracks, }
-    s = data['playlists']
-    s.append(playlistDictHarmonoid)
-    playlistNewHarmonoid = {"playlists": s}
+    oldPlaylist = data['playlists']
+    newPlaylist = oldPlaylist.append(playlistDictHarmonoid)
+    playlistNewHarmonoid = {"playlists": newPlaylist}
     #print(json.dumps(playlistNewHarmonoid, indent=4))
 
+# write the updated Playlist.JSON file
 with open(harmonoidPlaylist_path, 'w') as f:
     f.write(json.dumps(playlistNewHarmonoid, indent=4))
     print('Added playlist to Harmonoid')
