@@ -1,3 +1,14 @@
+"""Copyright (C) 2023 anonymous
+This program is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not,
+see <https://www.gnu.org/licenses/>."""
+
 import pathlib
 import time
 import logging
@@ -6,10 +17,9 @@ import json
 
 import eyed3
 
-
 logger = logging.getLogger(__name__)
 # Set logging level
-logger.setLevel(logging.DEBUG)# remove newline at end of line)
+logger.setLevel(logging.DEBUG)  # remove newline at end of line
 
 formatter = logging.Formatter("%(message)s ")
 
@@ -24,7 +34,7 @@ while m3u_path.is_file() is False:
     m3u_path = pathlib.Path(input('enter valid URI to m3u Playlist:\n'))
 
 # Format of playlists in the Harmonoid Playlist.JSON file 
-#playlistDictHarmonoid = [{'name': None,
+# playlistDictHarmonoid = [{'name': None,
 #                          'id': None,
 #                          'tracks': [
 #                              {
@@ -90,7 +100,7 @@ playlistDictHarmonoid = {'name': playlistTitle,
                          'tracks': tracks, }
 # print(playlistDictHarmonoid)
 
-#print(json.dumps(playlistDictHarmonoid, indent=4))
+# print(json.dumps(playlistDictHarmonoid, indent=4))
 
 harmonoidPlaylist_path = pathlib.Path.joinpath(pathlib.Path.home(), '.Harmonoid', 'Playlists.JSON')
 
@@ -115,12 +125,12 @@ with open(harmonoidPlaylist_path) as f:
 
     logger.debug(f"largest Playlist id: {r}")
     playlistDictHarmonoid = {'name': m3u_path.name[0:m3u_path.name.rfind('.m3u')],
-                             'id': r+1,
+                             'id': r + 1,
                              'tracks': tracks, }
     oldPlaylist = data['playlists']
     newPlaylist = oldPlaylist.append(playlistDictHarmonoid)
     playlistNewHarmonoid = {"playlists": newPlaylist}
-    #print(json.dumps(playlistNewHarmonoid, indent=4))
+    # print(json.dumps(playlistNewHarmonoid, indent=4))
 
 # write the updated Playlist.JSON file
 with open(harmonoidPlaylist_path, 'w') as f:
