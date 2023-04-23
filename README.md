@@ -20,5 +20,6 @@ Because this functionality is sadly not a Harmonoid feature at the time.
 **Requirements**\
 [eyed3](https://eyed3.readthedocs.io/en/latest/)
 
+
 **License**\
 Licensed under [GPL-3.0-or-later](LICENSE.txt)
