@@ -8,6 +8,7 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Gen
 
 You should have received a copy of the GNU General Public License along with this program. If not,
 see <https://www.gnu.org/licenses/>."""
+# TODO backup Playlist.JSON before editing
 
 import pathlib
 import time
@@ -19,7 +20,7 @@ import eyed3
 
 logger = logging.getLogger(__name__)
 # Set logging level
-logger.setLevel(logging.DEBUG)  # remove newline at end of line
+logger.setLevel(logging.INFO)  # remove newline at end of line
 
 formatter = logging.Formatter("%(message)s ")
 
@@ -62,7 +63,7 @@ with open(m3u_path) as f:
     for i, line in enumerate(f):
         line = line.replace('\n', '')  # remove newline at end of line
         if '#PLAYLIST' in line:
-            playlistTitle = line.replace('#PLAYLIST', '')  # set title of playlist
+            playlistTitle = line.replace('#PLAYLIST:', '')  # set title of playlist
 
         if '#' in line:  # '#' indicates that the line is a comment or additional unnecessary info -> skip line
             continue
@@ -71,18 +72,25 @@ with open(m3u_path) as f:
 
             audiofile = eyed3.load(path.absolute())  # open the file with eyed3 to read its metadata
 
-            try:
-                artists = [audiofile.tag.artist]
-            except AttributeError:
-                pass
+            albumArtist = audiofile.tag.album_artist
+            artists = audiofile.tag.artist
+            if artists is None:  # if artist doesn't exist use album_artist instead
+                artists = albumArtist
+            trackName = audiofile.tag.title
+            albumName = audiofile.tag.album
+            for tag in [albumArtist, artists, trackName, albumName]:
+                # if one of the tags is missing skip because it will break the playlist otherwise
+                if tag is None:
+                    continue
+
             tracks.append({
                 "uri": path.absolute().as_uri(),
-                "trackName": audiofile.tag.title,
-                "albumName": audiofile.tag.album,
+                "trackName": trackName,
+                "albumName": albumName,
                 "trackNumber": 1,
                 "discNumber": 1,
                 "albumLength": 1,
-                "albumArtistName": audiofile.tag.album_artist,
+                "albumArtistName": albumArtist,
                 "trackArtistNames": artists,
                 "timeAdded": int(time.time()),
                 "duration": 0,
@@ -127,12 +135,15 @@ with open(harmonoidPlaylist_path) as f:
     playlistDictHarmonoid = {'name': m3u_path.name[0:m3u_path.name.rfind('.m3u')],
                              'id': r + 1,
                              'tracks': tracks, }
+
     oldPlaylist = data['playlists']
-    newPlaylist = oldPlaylist.append(playlistDictHarmonoid)
+    newPlaylist = oldPlaylist.copy()
+    newPlaylist.append(playlistDictHarmonoid)  # fixme
     playlistNewHarmonoid = {"playlists": newPlaylist}
     # print(json.dumps(playlistNewHarmonoid, indent=4))
+logger.debug(json.dumps(playlistNewHarmonoid, indent=4))
 
 # write the updated Playlist.JSON file
 with open(harmonoidPlaylist_path, 'w') as f:
     f.write(json.dumps(playlistNewHarmonoid, indent=4))
-    print('Added playlist to Harmonoid')
+    print(f'Added playlist to Harmonoid.\nRestart Harmonoid to play it.')
