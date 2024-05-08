@@ -32,7 +32,7 @@ logger.addHandler(stdout_handler)
 m3u_path = pathlib.Path()
 # wait till a valid Path to .m3u playlist was supplied
 while m3u_path.is_file() is False:
-    m3u_path = pathlib.Path(input('enter valid URI to m3u Playlist:\n'))
+    m3u_path = pathlib.Path(input('enter valid file path to m3u Playlist:\n'))
 
 # Format of playlists in the Harmonoid Playlist.JSON file 
 # playlistDictHarmonoid = [{'name': None,
@@ -112,10 +112,14 @@ playlistDictHarmonoid = {'name': playlistTitle,
 
 harmonoidPlaylist_path = pathlib.Path.joinpath(pathlib.Path.home(), '.Harmonoid', 'Playlists.JSON')
 
+
 answer = str.lower(input(f"Is this the path to your Harmonoid Playlists.JSON file?\n'{harmonoidPlaylist_path}'\n["
                          f"yes/no]?\n"))
 while answer != 'yes' and answer != 'y' and answer != 'no' and answer != 'n':
     logger.debug(f'answer: {answer}')
+    if harmonoidPlaylist_path.is_file() is False:
+        print(f"{harmonoidPlaylist_path} is not a file.\nexiting now")
+        exit(1)
     answer = str.lower(input('[yes/no]?\n'))
 if answer == 'no' or answer == 'n':
     harmonoidPlaylist_path = pathlib.Path(input('enter valid Path to your Harmonoid Playlists.JSON file:\n'))
